@@ -1,0 +1,39 @@
+#include "debug.h"
+#include "ch32v30x.h"
+
+
+#define  GPIO_PORT        (GPIOA)
+#define  GPIO_PIN         (GPIO_Pin_0)
+
+#define  GPIO_INPUT  (GPIO_ReadInputDataBit(GPIO_PORT, GPIO_PIN)) //获取输入电平
+
+#define  GPIO_RCC_ENADLE (RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE)) //打开时钟线
+/**
+* @brief  init
+* @param
+* @param  None
+* @param  None
+* @retval None
+* @example
+**/
+void gpio_init(void)
+{
+    GPIO_InitTypeDef  GPIO_InitStructure;
+    GPIO_RCC_ENADLE;   //启动GPIO的时钟线,让时钟进去以驱动其GPIO
+    GPIO_InitStructure.GPIO_Pin = GPIO_PIN;//pin
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //上拉输入
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;//设不设置都可以
+    GPIO_Init(GPIO_PORT, &GPIO_InitStructure);
+}
+int main(void)
+{
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+    USART_Printf_Init(115200);
+    Delay_Init();
+    gpio_init();
+    while(1)
+    {
+        printf("GPIO_INPUT:%d\r\n", GPIO_INPUT);//打印GPIO电平状态
+        Delay_Ms(500);
+    }
+}
