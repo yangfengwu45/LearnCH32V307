@@ -1,0 +1,43 @@
+#include "debug.h"
+#include "ch32v30x.h"
+
+volatile uint16_t SysTickCnt=0;
+
+void SysTick_init(void)
+{
+    /*配置中断优先级*/
+    NVIC_InitTypeDef NVIC_InitStructure = {0};
+    NVIC_InitStructure.NVIC_IRQChannel = SysTicK_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;//抢占式优先级
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;//响应式优先级
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;//使能
+    NVIC_Init(&NVIC_InitStructure);
+
+    /*配置定时器*/
+    SysTick->CTLR= 0;
+    SysTick->SR  = 0;
+    SysTick->CNT = 0;
+    SysTick->CMP = SystemCoreClock/1000;//后面的1000代表1000HZ(那就是1ms进一次中断)
+    SysTick->CTLR= 0xf;
+}
+
+__attribute__((interrupt("WCH-Interrupt-fast")))
+void SysTick_Handler(void)
+{
+    SysTick->SR=0;//清除中断
+    SysTickCnt++;
+}
+
+int main(void)
+{
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);//设置优先级分组为2
+    USART_Printf_Init(115200);
+    SysTick_init();
+    while(1)
+    {
+        if (SysTickCnt>=1000) {
+            SysTickCnt=0;
+            printf("1111111111\r\n");
+        }
+    }
+}
