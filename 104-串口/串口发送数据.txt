@@ -1,0 +1,11 @@
+void usart_send_bytes(USART_TypeDef *USARTx, char *c,uint32_t cnt)
+{
+    while(cnt--)
+    {
+        USART_SendData(USARTx, *c++);
+        while(USART_GetFlagStatus(USARTx, USART_FLAG_TXE) == RESET );
+    }
+}
+
+
+usart_send_bytes(USART1, "11223344", 4);//·¢ËÍÊý¾Ý
